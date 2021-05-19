@@ -4,8 +4,9 @@ api/login
 
 const {Router} = require('express');
 const { check } = require('express-validator');
-const { createUser } = require('../controllers/auth');
+const { createUser, login, renewToken } = require('../controllers/auth');
 const { fieldValidator } = require('../middlewares/fields_validator');
+const { validateJWT } = require('../middlewares/validate_jwt');
 
 const router = Router();
 
@@ -14,7 +15,18 @@ router.post('/new', [
     check('email', 'Email is required').exists().isEmail(),
     check('password', 'Password is required').not().isEmpty().isLength({ min: 5 }),
     fieldValidator
-] , createUser)
+] , createUser);
+
+router.post('/', [
+    check('email', 'Email is required').exists().isEmail(),
+    check('password', 'Password is required').not().isEmpty().isLength({ min: 5 }),
+    fieldValidator
+] , login);
+
+router.get('/renew', [
+    validateJWT,
+    renewToken
+] , login);
 
 
 module.exports = router; 
